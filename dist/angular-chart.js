@@ -1,7 +1,7 @@
 /*!
  * angular-chart.js - An angular.js wrapper for Chart.js
- * http://jtblin.github.io/angular-chart.js/
- * Version: 1.1.1
+ * http://codefresh-io.github.io/angular-chart.js/
+ * Version: 1.1.4
  *
  * Copyright 2016 Jerome Touffe-Blin
  * Released under the BSD-2-Clause license
@@ -16,7 +16,7 @@
       typeof Chart !== 'undefined' ? Chart : require('chart.js'));
   }  else if (typeof define === 'function' && define.amd) {
     // AMD. Register as an anonymous module.
-    define(['angular', 'chart'], factory);
+    define(['angular', 'chart.js'], factory);
   } else {
     // Browser globals
     if (typeof angular === 'undefined') {
@@ -118,7 +118,9 @@
           chartColors: '=?',
           chartClick: '=?',
           chartHover: '=?',
-          chartDatasetOverride: '=?'
+          chartDatasetOverride: '=?',
+          chartPlugins: '=?',
+          chartForceUpdate: '=?'
         },
         link: function (scope, elem/*, attrs */) {
           if (useExcanvas) window.G_vmlCanvasManager.initElement(elem[0]);
@@ -148,7 +150,8 @@
             var chartType = type || scope.chartType;
             if (! chartType) return;
 
-            if (scope.chart && canUpdateChart(newVal, oldVal))
+            var forceUpdate = scope.chartForceUpdate || canUpdateChart(newVal, oldVal);
+            if (scope.chart && forceUpdate)
               return updateChart(newVal, scope);
 
             createChart(chartType, scope, elem);
@@ -190,7 +193,8 @@
       scope.chart = new ChartJs.Chart(ctx, {
         type: type,
         data: data,
-        options: options
+        options: options,
+        plugins: scope.chartPlugins
       });
       scope.$emit('chart-create', scope.chart);
       bindEvents(cvs, scope);
